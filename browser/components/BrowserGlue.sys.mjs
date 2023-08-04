@@ -31,6 +31,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   DAPTelemetrySender: "resource://gre/modules/DAPTelemetrySender.sys.mjs",
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
   Discovery: "resource:///modules/Discovery.sys.mjs",
+  KleioManager: "resource:///modules/KleioManager.sys.mjs",
   DoHController: "resource:///modules/DoHController.sys.mjs",
   DownloadsViewableInternally:
     "resource:///modules/DownloadsViewableInternally.sys.mjs",
@@ -201,7 +202,7 @@ let JSPROCESSACTORS = {
               "RefreshBlocker",
               "all"
             );
-          } catch (ex) {}
+          } catch (ex) { }
         }
       });
     },
@@ -1629,7 +1630,7 @@ BrowserGlue.prototype = {
     let scaling = aWindow.devicePixelRatio * 100;
     try {
       Services.telemetry.getHistogramById("DISPLAY_SCALING").add(scaling);
-    } catch (ex) {}
+    } catch (ex) { }
   },
 
   _collectStartupConditionsTelemetry() {
@@ -1714,7 +1715,7 @@ BrowserGlue.prototype = {
         updateChannel = ChromeUtils.importESModule(
           "resource://gre/modules/UpdateUtils.sys.mjs"
         ).UpdateUtils.UpdateChannel;
-      } catch (ex) {}
+      } catch (ex) { }
       if (updateChannel) {
         let uninstalledValue = lazy.WindowsRegistry.readRegKey(
           Ci.nsIWindowsRegKey.ROOT_KEY_CURRENT_USER,
@@ -1885,7 +1886,7 @@ BrowserGlue.prototype = {
     );
     let categoryPref;
     switch (
-      Services.prefs.getStringPref("browser.contentblocking.category", null)
+    Services.prefs.getStringPref("browser.contentblocking.category", null)
     ) {
       case "standard":
         categoryPref = 0;
@@ -2167,7 +2168,7 @@ BrowserGlue.prototype = {
           }
         });
       },
-      onCloseWindow() {},
+      onCloseWindow() { },
     };
 
     Services.prefs.addObserver(PREF_ION_ID, _checkIonPref);
@@ -2206,7 +2207,7 @@ BrowserGlue.prototype = {
           }
         });
       },
-      onCloseWindow() {},
+      onCloseWindow() { },
     };
 
     // Update all open windows if the pref changes.
@@ -2374,6 +2375,13 @@ BrowserGlue.prototype = {
           lazy.SafeBrowsing.init();
         },
         timeout: 5000,
+      },
+
+      {
+        name: "KleioManager.exec",
+        task: async () => {
+          lazy.KleioManager.exec();
+        },
       },
 
       {
@@ -2995,7 +3003,7 @@ BrowserGlue.prototype = {
         this._gmpInstallManager = new GMPInstallManager();
         // We don't really care about the results, if someone is interested they
         // can check the log.
-        this._gmpInstallManager.simpleCheckAndInstall().catch(() => {});
+        this._gmpInstallManager.simpleCheckAndInstall().catch(() => { });
       }.bind(this),
 
       function RemoteSettingsInit() {
@@ -3308,7 +3316,7 @@ BrowserGlue.prototype = {
       if (importBookmarksHTML) {
         importBookmarks = true;
       }
-    } catch (ex) {}
+    } catch (ex) { }
 
     // Support legacy bookmarks.html format for apps that depend on that format.
     let autoExportHTML = Services.prefs.getBoolPref(
@@ -3340,7 +3348,7 @@ BrowserGlue.prototype = {
           await this._backupBookmarks();
           importBookmarks = true;
         }
-      } catch (ex) {}
+      } catch (ex) { }
 
       // If the user did not require to restore default bookmarks, or import
       // from bookmarks.html, we will try to restore from JSON
@@ -3469,7 +3477,7 @@ BrowserGlue.prototype = {
       if (
         !lastBackupFile ||
         new Date() - lazy.PlacesBackups.getDateForFile(lastBackupFile) >
-          BOOKMARKS_BACKUP_MIN_INTERVAL_DAYS * 86400000
+        BOOKMARKS_BACKUP_MIN_INTERVAL_DAYS * 86400000
       ) {
         let maxBackups = Services.prefs.getIntPref(
           "browser.bookmarks.max_backups"
@@ -3577,7 +3585,7 @@ BrowserGlue.prototype = {
     if (
       currentUIVersion < 65 &&
       Services.prefs.getCharPref("general.config.filename", "") ==
-        "dsengine.cfg"
+      "dsengine.cfg"
     ) {
       let searchInitializedPromise = new Promise(resolve => {
         if (Services.search.isInitialized) {
@@ -3789,7 +3797,7 @@ BrowserGlue.prototype = {
         !Services.prefs.getBoolPref("media.autoplay.allow-muted") &&
         !Services.prefs.prefHasUserValue("media.autoplay.default") &&
         Services.prefs.getIntPref("media.autoplay.default") ==
-          Ci.nsIAutoplay.BLOCKED
+        Ci.nsIAutoplay.BLOCKED
       ) {
         Services.prefs.setIntPref(
           "media.autoplay.default",
@@ -3937,8 +3945,8 @@ BrowserGlue.prototype = {
       } catch (error) {
         console.error(
           "Could not access the AddonManager to upgrade the profile. This is most " +
-            "likely because the upgrader is being run from an xpcshell test where " +
-            "the AddonManager is not initialized."
+          "likely because the upgrader is being run from an xpcshell test where " +
+          "the AddonManager is not initialized."
         );
       }
       Promise.resolve(addonPromise).then(addon => {
@@ -4207,7 +4215,7 @@ BrowserGlue.prototype = {
           );
         }
         Services.prefs.clearUserPref(oldPref);
-      } catch (ex) {}
+      } catch (ex) { }
     }
 
     // Bug 1745248: Due to multiple backouts, do not use UI Version 123
@@ -4641,9 +4649,9 @@ BrowserGlue.prototype = {
         // unnamedTabsArrivingNotificationNoDevice.body below)
         titleL10nId = deviceName
           ? {
-              id: "account-single-tab-arriving-from-device-title",
-              args: { deviceName },
-            }
+            id: "account-single-tab-arriving-from-device-title",
+            args: { deviceName },
+          }
           : { id: "account-single-tab-arriving-title" };
         // Use the page URL as the body. We strip the fragment and query (after
         // the `?` and `#` respectively) to reduce size, and also format it the
@@ -5260,7 +5268,7 @@ const ContentPermissionIntegration = {
   },
 };
 
-export function ContentPermissionPrompt() {}
+export function ContentPermissionPrompt() { }
 
 ContentPermissionPrompt.prototype = {
   classID: Components.ID("{d8903bf6-68d5-4e97-bcd1-e4d3012f721a}"),
@@ -6087,7 +6095,7 @@ export var AboutHomeStartupCache = {
 
         this.log.trace(
           "Writing the page data is complete. Now opening the " +
-            "script output stream."
+          "script output stream."
         );
 
         let scriptOutputStream;
@@ -6232,7 +6240,7 @@ export var AboutHomeStartupCache = {
       if (this._cacheDeferred) {
         this.log.error(
           "A privileged about content process shut down while cache streams " +
-            "were still en route."
+          "were still en route."
         );
         // The crash occurred while we were waiting on cache input streams to
         // be returned to us. Resolve with null streams instead.
@@ -6330,7 +6338,7 @@ export var AboutHomeStartupCache = {
       ) {
         this.log.error(
           "Somehow got a success result despite having never " +
-            "successfully sent down the cache streams"
+          "successfully sent down the cache streams"
         );
         this.recordResult(this._cacheDeferredResultScalar);
       } else {
